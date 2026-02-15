@@ -158,7 +158,11 @@ INSERT INTO students VALUES
 (103, 'Rohit', 55, 60),
 (104, 'Pooja', 48, 72),
 (105, 'Karan', 82, 95);
+
+SELECT * FROM students;
+
 ```
+![Select Query](Screenshots/s1.png)
 
 ---
 
@@ -174,6 +178,7 @@ BEGIN
   END LOOP;
 END $$;
 ```
+![Example 1](Screenshots/e1.png)
 
 ---
 
@@ -189,6 +194,7 @@ BEGIN
   END LOOP;
 END $$;
 ```
+![Example 2](Screenshots/e2.png)
 
 ---
 
@@ -205,6 +211,7 @@ BEGIN
   END LOOP;
 END $$;
 ```
+![Example 3](Screenshots/e3.png)
 
 ---
 
@@ -222,6 +229,7 @@ BEGIN
   END LOOP;
 END $$;
 ```
+![Example 4](Screenshots/e4.png)
 
 ---
 
@@ -243,6 +251,7 @@ BEGIN
   END LOOP;
 END $$;
 ```
+![Example 5](Screenshots/e5.png)
 
 ---
 
@@ -266,6 +275,7 @@ BEGIN
   END LOOP;
 END $$;
 ```
+![Example 6](Screenshots/e6.png)
 
 ---
 
