@@ -1,0 +1,95 @@
+SELECT * FROM EMPLOYEES;
+--insertion
+CREATE OR REPLACE PROCEDURE ADD_NEW_EMPLOYEE(IN EMP_ID INT, IN NAME VARCHAR(50), IN DEPT_ID INT, IN SALARY INT )
+LANGUAGE PLPGSQL
+AS 
+$$
+BEGIN
+INSERT INTO EMPLOYEES (EMP_ID, NAME, DEPT_ID, SALARY)
+VALUES (EMP_ID, NAME, DEPT_ID, SALARY);
+END;
+$$;
+
+CALL ADD_NEW_EMPLOYEE(6,'John',30,10000);
+
+--updating
+CREATE OR REPLACE PROCEDURE UPDATE_SALARY(IN IDS INT, INOUT BONUS INT, OUT FINAL_SALARY INT )
+LANGUAGE PLPGSQL
+AS 
+$$
+DECLARE 
+CURR_SALARY INT :=0;
+BEGIN
+SELECT salary INTO CURR_SALARY FROM EMPLOYEES WHERE EMP_ID = IDS;
+
+    -- Check if employee exists
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Employee not found';
+    END IF;
+	
+BONUS := (BONUS::NUMERIC/100)*CURR_SALARY;
+FINAL_SALARY := CURR_SALARY + BONUS;
+UPDATE EMPLOYEES SET SALARY = FINAL_SALARY WHERE EMP_ID=IDS;
+END;
+$$;
+
+
+call UPDATE_SALARY(1, 1, null);--first way of calling the procedure
+--2nd way of calling the procedure 
+DO
+$$
+DECLARE
+IDS INT :=1;
+BONUS INT :=5;
+FINAL_SALARY INT;	
+BEGIN
+CALL UPDATE_SALARY(IDS,BONUS,FINAL_SALARY);
+RAISE NOTICE 'HERE IS THE BONUS GIVEN TO THE EMPLOYEE %, AND THIS IS THE FINAL SALRAY FOR HIM %',BONUS, FINAL_SALARY;
+END;
+$$;
+
+--Deletion
+CREATE OR REPLACE PROCEDURE delete_employee(
+    IN p_emp_id INT
+)
+LANGUAGE plpgsql
+AS
+$$
+BEGIN
+    DELETE FROM employees
+    WHERE emp_id = p_emp_id;
+
+    IF NOT FOUND THEN
+        RAISE NOTICE 'Employee not found';
+    ELSE
+        RAISE NOTICE 'Employee deleted successfully';
+    END IF;
+END;
+$$;
+
+CALL delete_employee(6);
+
+
+--Retrival
+CREATE OR REPLACE PROCEDURE get_employee(
+    IN p_emp_id INT,
+    OUT p_name VARCHAR,
+    OUT p_dept_id INT,
+    OUT p_salary INT
+)
+LANGUAGE plpgsql
+AS
+$$
+BEGIN
+    SELECT name, dept_id, salary
+    INTO p_name, p_dept_id, p_salary
+    FROM employees
+    WHERE emp_id = p_emp_id;
+
+    IF NOT FOUND THEN
+        RAISE NOTICE 'Employee not found';
+    END IF;
+END;
+$$;
+
+CALL get_employee(2, NULL, NULL, NULL);
