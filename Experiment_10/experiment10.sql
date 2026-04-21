@@ -1,42 +1,97 @@
+-- ============================================
+-- PostgreSQL Transaction Experiment
+-- ============================================
 
-CREATE TABLE Payroll (
-    emp_id INT PRIMARY KEY,
-    emp_name VARCHAR(50),
-    salary DECIMAL(10,2) CHECK(SALARY>0)
+-- =========================
+-- DROP TABLE (CLEANUP)
+-- =========================
+DROP TABLE IF EXISTS accounts;
+
+-- =========================
+-- CREATE TABLE
+-- =========================
+CREATE TABLE accounts (
+    id SERIAL PRIMARY KEY,
+    name TEXT,
+    balance INT
 );
 
--- DROP TABLE PAYROLL
+-- =========================
+-- INSERT INITIAL DATA
+-- =========================
+INSERT INTO accounts(name, balance) VALUES ('Ankush', 1000);
+INSERT INTO accounts(name, balance) VALUES ('Rahul', 2000);
 
-INSERT INTO Payroll VALUES
-(1, 'Amit', 30000),
-(2, 'Neha', 40000),
-(3, 'Ravi', 50000);
+-- View initial state
+SELECT * FROM accounts;
 
-SELECT * FROM PAYROLL
+-- ============================================
+-- BASIC TRANSACTION (TRANSFER MONEY)
+-- ============================================
 
-BEGIN;
--- Update 1
-UPDATE Payroll
-SET salary = salary + 5000
-WHERE emp_id = 1;
+BEGIN;  -- Start transaction
 
--- Savepoint
+-- Deduct 500 from Ankush
+UPDATE accounts 
+SET balance = balance - 500 
+WHERE name = 'Ankush';
+
+-- Add 500 to Rahul
+UPDATE accounts 
+SET balance = balance + 500 
+WHERE name = 'Rahul';
+
+COMMIT; -- Save changes permanently
+
+-- Check result after commit
+SELECT * FROM accounts;
+
+-- ============================================
+-- TRANSACTION WITH ROLLBACK (ERROR HANDLING)
+-- ============================================
+
+BEGIN;  -- Start transaction
+
+-- Deduct 300 from Ankush
+UPDATE accounts 
+SET balance = balance - 300 
+WHERE name = 'Ankush';
+
+-- Simulating an error condition
+-- Instead of committing, we rollback
+ROLLBACK;
+
+-- Verify that no changes were applied
+SELECT * FROM accounts;
+
+-- ============================================
+-- TRANSACTION WITH SAVEPOINT
+-- ============================================
+
+BEGIN;  -- Start transaction
+
+-- Step 1: Deduct 200 from Ankush
+UPDATE accounts 
+SET balance = balance - 200 
+WHERE name = 'Ankush';
+
+-- Create a savepoint after first operation
 SAVEPOINT sp1;
 
--- Update 2
-UPDATE Payroll
-SET salary = salary + 7000
-WHERE emp_id = 2;
+-- Step 2: Add 200 to Rahul
+UPDATE accounts 
+SET balance = balance + 200 
+WHERE name = 'Rahul';
 
-
--- Error simulation
-UPDATE Payroll
-SET salary = -1000
-WHERE emp_id = 3;
-
-
--- Rollback to savepoint
+-- Suppose something goes wrong here
+-- Rollback only to savepoint (undo second step)
 ROLLBACK TO sp1;
 
--- Commit valid changes
+-- Commit remaining valid changes
 COMMIT;
+
+-- ============================================
+-- FINAL RESULT
+-- ============================================
+
+SELECT * FROM accounts;
